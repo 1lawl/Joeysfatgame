@@ -15,7 +15,9 @@ function shade(hex, a) {
 }
 
 function stroke(c, lw) { if (lw) { c.lineWidth = lw; c.strokeStyle = OUT; c.lineJoin = 'round'; c.stroke(); } }
-function fill(c, f) { if (f) { c.fillStyle = f; c.fill(); } }
+// While FLASHING is set, every shape fills white: a cheap hit flash (canvas filters are very slow).
+let FLASHING = false;
+function fill(c, f) { if (f) { c.fillStyle = FLASHING ? '#ffffff' : f; c.fill(); } }
 function circ(c, x, y, r, f, lw = 3) { c.beginPath(); c.arc(x, y, Math.max(0.1, r), 0, TAU); fill(c, f); stroke(c, lw); }
 function ell(c, x, y, rx, ry, f, lw = 3, rot = 0) {
   c.beginPath(); c.ellipse(x, y, Math.max(0.1, rx), Math.max(0.1, ry), rot, 0, TAU); fill(c, f); stroke(c, lw);
@@ -40,7 +42,7 @@ function limb(c, x1, y1, x2, y2, col, w = 7) {
   c.lineCap = 'round';
   c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2);
   c.strokeStyle = OUT; c.lineWidth = w + 5; c.stroke();
-  c.strokeStyle = col; c.lineWidth = w; c.stroke();
+  c.strokeStyle = FLASHING ? '#ffffff' : col; c.lineWidth = w; c.stroke();
 }
 function line(c, x1, y1, x2, y2, col = OUT, w = 3) {
   c.lineCap = 'round'; c.strokeStyle = col; c.lineWidth = w;
@@ -77,7 +79,9 @@ function drawShadow(c, sx, sy, w, z) {
   c.beginPath(); c.ellipse(sx, sy, w * k, w * 0.32 * k, 0, 0, TAU); c.fill();
 }
 function withFlash(c, on, fn) {
-  if (on) { c.save(); c.filter = 'brightness(2.6) saturate(0.3)'; fn(); c.restore(); } else fn();
+  if (!on) { fn(); return; }
+  FLASHING = true;
+  try { fn(); } finally { FLASHING = false; }
 }
 
 // ============================================================

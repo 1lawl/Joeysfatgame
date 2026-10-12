@@ -68,7 +68,7 @@ class Actor {
     const hz = this.z + this.h * 0.6;
     FX.sparks(this.x - dir * 6, this.y, hz, spec.knock || spec.launch ? 12 : 7, '#fff7c2');
     FX.text(this.x, this.y - 2, hz + 20, String(dmg), this.team === 'hero' ? '#ff5d5d' : '#fff', dmg >= 12 ? 26 : 20);
-    G.hitstop = Math.max(G.hitstop, spec.hitstop ?? 3);
+    G.hitstop = Math.max(G.hitstop, Math.min(3, Math.floor((spec.hitstop ?? 2) / 2)));
     G.shake = Math.max(G.shake, spec.knock || spec.launch ? 5 : 2);
     Snd.play(spec.knock || spec.launch || dmg >= 12 ? 'bighit' : 'hit');
     if (src && src.onDealtDamage) src.onDealtDamage(dmg, this);
